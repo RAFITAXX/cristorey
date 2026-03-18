@@ -1,1 +1,32 @@
+#voltajes = [12.6, 12.4, 12.3, 12.1, 11.9, 11.8, 11.6, 11.4]
+import random
+voltajes = [round(random.uniform(10,12), 1) for _ in range(10)]
 
+def analizar_voltajes(lista_voltajes):
+    a = 0
+    maximo = max(lista_voltajes)
+    minimo = min(lista_voltajes)
+    promedio = sum(lista_voltajes)/len(lista_voltajes)
+    for datos in lista_voltajes:
+        i = datos
+        if i < 12:
+            a=a+1
+    return maximo, minimo, promedio, a
+
+def estado_bateria(promedio):
+    b = sum(promedio)/len(promedio)
+    if b >= 12.2:
+        return "Batería en buen estado"
+    elif 12.19 > b > 11.8:
+        return "Batería en descarga"
+    else:
+        return "Batería crítica"
+maximo, minimo, promedio, a = analizar_voltajes(voltajes)
+estado = estado_bateria(voltajes)
+print("---- Análisis voltaje batería en descarga ----")
+print("voltajes :", voltajes)
+print(f"Valor máximo: {maximo} V")
+print(f"Valor mínimo: {minimo} V")  
+print(f"Valor promedio: {promedio} V")
+print(f"Cantidad de mediciones bajo 12.0 V: {a}")
+print(f"Estado de la bateria: {estado} ")
