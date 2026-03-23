@@ -1,0 +1,14 @@
+def evaluar_zona_poligono(coords_x, coords_y):
+    largo = max(coords_x) - min(coords_x)
+    alto = max(coords_y) - min(coords_y)
+    area_poligono = largo * alto
+    return area_poligono, largo, alto
+
+coords_x = [2, 8, 8, 2]
+coords_y = [1, 1, 5, 5]
+
+area, largo, alto = evaluar_zona_poligono(coords_x, coords_y)
+
+print(f"El area del poligono es: {area}")
+print(f"El largo del poligono es: {largo}")
+print(f"El alto del poligono es: {alto}")
