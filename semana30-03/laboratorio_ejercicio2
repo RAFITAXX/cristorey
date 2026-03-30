@@ -1,1 +1,13 @@
+import numpy as np
+import matplotlib.pyplot as plt
+encuesta = {"Python": 45, "C++": 28, "C": 15, "Java": 12, "Rust": 8}
+lenguajes = list(encuesta.keys())
+plt.bar(lenguajes, encuesta.values(), color=['blue', 'green', 'red', 'purple', 'orange'])
+plt.xlabel('Lenguajes de Programación')
+plt.ylabel('Número de Encuestados')
+plt.title('Distribución de Lenguajes de Programación')
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+
 
