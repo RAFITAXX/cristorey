@@ -1,0 +1,16 @@
+import pandas as pd
+
+# Crear un diccionario con información de canciones favoritas
+data = {
+    'Cancion': ['Hola', ' Si Antes Te Hubiera Conocido', 'nuevayork', 'weltita'],
+    'Artista': ['miranda', 'KAROL G', 'bad bunny', 'bad bunny'],
+    'Duracion_seg': [160, 300, 303, 307]
+}
+
+# Convertir el diccionario en un DataFrame
+df = pd.DataFrame(data)
+
+# Imprimir las propiedades estructurales del DataFrame
+print("Dimensiones del DataFrame (filas, columnas):", df.shape)
+print("\nTipos de datos de las columnas:")
+print(df.dtypes)
