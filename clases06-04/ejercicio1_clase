@@ -1,0 +1,20 @@
+def limpiar_datos(lecturas):
+    datos_validos = []
+    
+    for dato in lecturas:
+        try:
+            valor_limpio = float(dato)
+            datos_validos.append(valor_limpio)
+        except (ValueError, TypeError):
+            print(f"Dato defectuoso omitido: {dato}")
+            
+    if len(datos_validos) > 0:
+        promedio = sum(datos_validos) / len(datos_validos)
+        return promedio
+    else:
+        return 0.0
+
+# Pruebas
+lista_prueba = [22.5, "23.1", "Error", None, 21.8, ""]
+prom = limpiar_datos(lista_prueba)
+print(f"El promedio de las lecturas válidas es: {prom}")
