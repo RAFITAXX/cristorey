@@ -1,0 +1,24 @@
+def mover_servo(angulo):
+    try:
+        # 1. Verificación de tipo de dato (raise manual)
+        if not isinstance(angulo, int):
+            raise TypeError("El ángulo de control debe ser un número entero.")
+        
+        # 2. Verificación de rango físico (assert)
+        # Detiene la ejecución si se intenta forzar el mecanismo
+        assert 0 <= angulo <= 180, "Error: Ángulo fuera de rango físico (0-180)."
+        
+        print(f"Moviendo motor a {angulo}°...")
+
+    except TypeError as e:
+        print(f"Fallo de software: {e}")
+    except AssertionError as e:
+        print(f"Fallo de seguridad en hardware: {e}")
+    finally:
+        # Se ejecuta siempre para asegurar que el sistema no quede energizado o colgado
+        print("Estado del motor: Standby.")
+
+# Pruebas
+mover_servo(45)     # Correcto
+mover_servo(200)    # Gatilla AssertionError
+mover_servo(90.5)   # Gatilla TypeError
