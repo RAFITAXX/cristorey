@@ -1,103 +1,146 @@
-import matplotlib.pyplot as plt
-import numpy as np
+
 import os
+import numpy as np
+import matplotlib
+matplotlib.use("Agg") 
+import matplotlib.pyplot as plt
 
+
+CARPETA_RESULTADOS = "resultados_graficos"
+
+
+def _asegurar_carpeta(carpeta=CARPETA_RESULTADOS):
+    
+    os.makedirs(carpeta, exist_ok=True)
+
+
+
+#(a) plot_metricas(diccionario_experimentos, ambiente, ruta)
 def plot_metricas(diccionario_experimentos, ambiente, ruta):
-    """
-    Genera una figura con 4 subplots lineales comparando PPO vs PPO-Mask[cite: 157, 158].
-    """
-    # 1. Filtrado de datos según ambiente y ruta [cite: 160]
-    politicas = ["PPO", "PPO-Mask"]
-    metricas = ["ISE", "IAE", "ITSE", "ITAE"]
-    
-    # Preparamos los datos para las barras
-    valores_grafico = {m: [] for m in metricas}
-    
-    for pol in politicas:
-        # Buscamos el experimento que coincida con la política, ambiente y ruta
-        encontrado = False
-        for exp in diccionario_experimentos.values():
-            if exp["politica"] == pol and exp["ambiente"] == ambiente and exp["ruta"] == ruta:
-                for m in metricas:
-                    valores_grafico[m].append(exp[m])
-                encontrado = True
-                break
-        if not encontrado: # Si no hay datos, ponemos 0 para no romper el gráfico
-            for m in metricas:
-                valores_grafico[m].append(0)
+   
+    _asegurar_carpeta()
 
-    # 2. Creación de la figura (1 fila, 4 columnas) [cite: 158]
-    fig, axs = plt.subplots(1, 4, figsize=(16, 4))
-    colores = ['#3498db', '#e74c3c'] # Azul para PPO, Rojo para PPO-Mask
-    
-    for i, m in enumerate(metricas):
-        axs[i].bar(politicas, valores_grafico[m], color=colores)
-        axs[i].set_title(m)
-        axs[i].set_ylabel("Valor del índice")
-        axs[i].grid(axis='y', linestyle='--', alpha=0.7)
 
-    plt.suptitle(f"Indices de error --- {ambiente} | {ruta}")
+    datos_ppo  = None
+    datos_mask = None
+
+    for _, datos in diccionario_experimentos.items():
+        if datos["ambiente"] == ambiente and datos["ruta"] == ruta:
+            if datos["politica"] == "PPO":
+                datos_ppo = datos
+            elif datos["politica"] == "PPO-Mask":
+                datos_mask = datos
+
+    if datos_ppo is None or datos_mask is None:
+        print(f"[AVISO] No se encontraron datos para ambiente='{ambiente}', ruta='{ruta}'")
+        return
+
+    metricas   = ["ISE", "IAE", "ITSE", "ITAE"]
+    val_ppo    = [datos_ppo[m]  for m in metricas]
+    val_mask   = [datos_mask[m] for m in metricas]
+
+    
+    fig, axes = plt.subplots(1, 4, figsize=(16, 5))
+    fig.suptitle(f"Índices de error — {ambiente} | {ruta} (Tabla 6)", fontsize=13)
+
+    colores = ["#4C72B0", "#C44E52"]   # azul PPO, rojo PPO-Mask
+
+    for ax, metrica, v_ppo, v_mask in zip(axes, metricas, val_ppo, val_mask):
+        bars = ax.bar(["PPO", "PPO-Mask"], [v_ppo, v_mask], color=colores, width=0.5)
+        ax.set_title(metrica, fontsize=12, fontweight="bold")
+        ax.set_ylabel("Valor del Índice")
+        ax.set_ylim(0, max(v_ppo, v_mask) * 1.2)
+        # Etiquetas sobre las barras
+        for bar, val in zip(bars, [v_ppo, v_mask]):
+            ax.text(
+                bar.get_x() + bar.get_width() / 2,
+                bar.get_height() + max(v_ppo, v_mask) * 0.02,
+                f"{val:.2f}",
+                ha="center", va="bottom", fontsize=9,
+            )
+
     plt.tight_layout()
 
-    # 3. Automatización de guardado [cite: 162]
-    folder = "resultados_graficos"
-    os.makedirs(folder, exist_ok=True) # Crea la carpeta si no existe 
-    
-    path = os.path.join(folder, f"metricas_{ambiente}_{ruta}.png")
-    plt.savefig(path, dpi=300) # Guarda con alta calidad [cite: 155]
+    nombre_archivo = os.path.join(
+        CARPETA_RESULTADOS,
+        f"metricas_{ambiente}_{ruta}.png",
+    )
+    plt.savefig(nombre_archivo, dpi=150, bbox_inches="tight")
     plt.close()
+    print(f" > Gráfico guardado: {nombre_archivo}")
 
+#(b) plot_lidar(angulos, distancias, distancias_norm)
 def plot_lidar(angulos, distancias, distancias_norm):
-    """
-    Visualiza la percepción del robot (Real vs IA)[cite: 167, 169].
-    """
-    plt.figure(figsize=(12, 5))
+   
+    _asegurar_carpeta()
 
-    # Subplot 1: Visualización "Humana" (Real) [cite: 170, 171]
-    plt.subplot(1, 2, 1)
-    plt.scatter(angulos, distancias, c=distancias, cmap='winter')
-    plt.title("¿A qué distancia están los objetos?\n(Eje X: Ángulo | Eje Y: Metros)")
-    plt.xlabel("Ángulo de giro (0-360°)")
-    plt.ylabel("Distancia detectada (m)")
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13, 5))
 
-    # Subplot 2: Visualización "IA" (Normalizada) [cite: 172]
-    plt.subplot(1, 2, 2)
-    plt.plot(range(len(distancias_norm)), distancias_norm, 'r.-')
-    plt.title("Datos Normalizados\n(Lo que procesa la IA)")
-    plt.xlabel("Sectores del sensor")
-    plt.ylabel("Valor (0.0 a 1.0)")
+    
+    colores_scatter = [
+        "red" if d < 2.0 else "green" for d in distancias
+    ]
+    ax1.scatter(angulos, distancias, c=colores_scatter, s=60, zorder=3)
+    ax1.set_title("¿A qué distancia están los objetos?\n(Eje X: Ángulo | Eje Y: Metros)")
+    ax1.set_xlabel("Ángulo de giro (0-360°)")
+    ax1.set_ylabel("Distancia detectada (m)")
+    ax1.set_xlim(0, 360)
+    ax1.set_ylim(0, None)
+    ax1.grid(True, alpha=0.3)
 
-    # Guardado automático
-    folder = "resultados_graficos"
-    os.makedirs(folder, exist_ok=True)
-    plt.savefig(os.path.join(folder, "mapa_lidar.png"), dpi=300)
+    
+    colores_line = [
+        "red" if d < (2.0 - 0.5) / (30.0 - 0.5) else "#CC0000"
+        for d in distancias_norm
+    ]
+    ax2.plot(range(len(distancias_norm)), distancias_norm,
+             color="red", linewidth=1.5, marker="o", markersize=3)
+    ax2.set_title("Datos Normalizados\n(Lo que procesa la IA)")
+    ax2.set_xlabel("Sectores del sensor")
+    ax2.set_ylabel("Valor (0.0 a 1.0)")
+    ax2.set_xlim(0, len(distancias_norm))
+    ax2.set_ylim(0, 1.05)
+    ax2.grid(True, alpha=0.3)
+
+    plt.tight_layout()
+
+    nombre_archivo = os.path.join(CARPETA_RESULTADOS, "mapa_lidar.png")
+    plt.savefig(nombre_archivo, dpi=150, bbox_inches="tight")
     plt.close()
+    print(f" > Gráfico guardado: {nombre_archivo}")
 
+#(c) plot_trayectorias(x_ppo, y_ppo, x_mask, y_mask, waypoints, nombre)
 def plot_trayectorias(x_ppo, y_ppo, x_mask, y_mask, waypoints, nombre):
-    """
-    Genera el mapa de navegación comparativo[cite: 173].
-    """
-    plt.figure(figsize=(8, 8))
     
-    # Trayectorias [cite: 174]
-    plt.plot(x_ppo, y_ppo, label="Trayectoria PPO", alpha=0.6)
-    plt.plot(x_mask, y_mask, label="Trayectoria PPO-Mask", linestyle='--', alpha=0.8)
-    
-    # Waypoints como cuadrados negros [cite: 174]
-    wp = np.array(waypoints)
-    plt.scatter(wp[:, 0], wp[:, 1], color='black', marker='s', label="Waypoints (Metas)")
-    
-    # Restricción Geométrica OBLIGATORIA 
-    plt.axis('equal') 
-    
-    plt.title(f"Comparación de Navegación: {nombre}")
-    plt.xlabel("Posición X (metros)")
-    plt.ylabel("Posición Y (metros)")
-    plt.legend()
-    plt.grid(True, alpha=0.3)
+    _asegurar_carpeta()
 
-    # Guardado automático
-    folder = "resultados_graficos"
-    os.makedirs(folder, exist_ok=True)
-    plt.savefig(os.path.join(folder, f"trayectoria_{nombre}.png"), dpi=300)
+    fig, ax = plt.subplots(figsize=(7, 7))
+
+    # Trayectorias
+    ax.plot(x_ppo,  y_ppo,  color="#4C72B0", linewidth=1.0,
+            alpha=0.8, label="Trayectoria PPO")
+    ax.plot(x_mask, y_mask, color="#C44E52", linewidth=1.0,
+            linestyle="--", alpha=0.8, label="Trayectoria PPO-Mask")
+
+    # Waypoints como cuadrados negros
+    wx = [wp[0] for wp in waypoints]
+    wy = [wp[1] for wp in waypoints]
+    ax.scatter(wx, wy, marker="s", color="black", s=80, zorder=5,
+               label="Waypoints (Metas)")
+
+    ax.set_title(f"Comparación de Navegación: Ruta {nombre.capitalize()}")
+    ax.set_xlabel("Posición X (metros)")
+    ax.set_ylabel("Posición Y (metros)")
+    ax.legend(loc="upper right", fontsize=9)
+    ax.axis("equal")   # Restricción geométrica obligatoria
+    ax.grid(True, alpha=0.3)
+
+    plt.tight_layout()
+
+    nombre_archivo = os.path.join(
+        CARPETA_RESULTADOS,
+        f"trayectorias_{nombre}.png",
+    )
+    plt.savefig(nombre_archivo, dpi=150, bbox_inches="tight")
     plt.close()
+    print(f" > Gráfico guardado: {nombre_archivo}")
