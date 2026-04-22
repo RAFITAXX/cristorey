@@ -116,13 +116,13 @@ def plot_trayectorias(x_ppo, y_ppo, x_mask, y_mask, waypoints, nombre):
 
     fig, ax = plt.subplots(figsize=(7, 7))
 
-    # Trayectorias
+    
     ax.plot(x_ppo,  y_ppo,  color="#4C72B0", linewidth=1.0,
             alpha=0.8, label="Trayectoria PPO")
     ax.plot(x_mask, y_mask, color="#C44E52", linewidth=1.0,
             linestyle="--", alpha=0.8, label="Trayectoria PPO-Mask")
 
-    # Waypoints como cuadrados negros
+    
     wx = [wp[0] for wp in waypoints]
     wy = [wp[1] for wp in waypoints]
     ax.scatter(wx, wy, marker="s", color="black", s=80, zorder=5,
@@ -132,7 +132,7 @@ def plot_trayectorias(x_ppo, y_ppo, x_mask, y_mask, waypoints, nombre):
     ax.set_xlabel("Posición X (metros)")
     ax.set_ylabel("Posición Y (metros)")
     ax.legend(loc="upper right", fontsize=9)
-    ax.axis("equal")   # Restricción geométrica obligatoria
+    ax.axis("equal")   
     ax.grid(True, alpha=0.3)
 
     plt.tight_layout()
