@@ -1,0 +1,11 @@
+#include<stdio.h>
+ int main () {
+     int fecha ;
+     int edad_calculada;
+ printf (" fecha de nacimiento: ") ;
+ scanf ("%d", & fecha ) ;
+ printf (" Usted nacio el %d  .\n", fecha ) ;
+ edad_calculada= 2026 - fecha;
+ printf (" Usted nacio el %d  .\n", edad_calculada) ;
+ return 0;
+ }
