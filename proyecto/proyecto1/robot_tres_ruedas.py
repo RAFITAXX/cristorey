@@ -1,6 +1,4 @@
-# -----------------------------
-# robot_tres_ruedas.py
-# -----------------------------
+
 import random
 from robot_base import RobotBase
 
