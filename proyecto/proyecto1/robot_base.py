@@ -1,6 +1,4 @@
-# -----------------------------
-#robot_base.py
-# -----------------------------
+
 import math
 class RobotBase:
 
