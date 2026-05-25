@@ -1,6 +1,4 @@
-# -----------------------------
-# robot_dron.py
-# -----------------------------
+
 import random
 from robot_base import RobotBase
 
