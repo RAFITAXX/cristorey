@@ -1,6 +1,4 @@
-# -----------------------------
-# robot_oruga.py
-# -----------------------------
+
 import random
 from robot_base import RobotBase
 
