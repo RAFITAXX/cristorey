@@ -1,0 +1,76 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <unistd.h>
+
+/* usamos una estructura para guardar los datos de cada eslabon */
+struct Eslabon {
+    int id;   /* numero del eslabon (1 al 4) */
+    int x;    /* posicion en el eje X */
+    int y;    /* posicion en el eje Y */
+};
+
+/* prototipos, los ponemos aca arriba para que el compilador los conozca antes del main */
+void generarPosicion(struct Eslabon *e);
+int  autoHome(struct Eslabon *e);
+
+/* esta funcion le asigna una posicion random al eslabon
+   recibe un puntero porque si no, los cambios no se guardan afuera */
+void generarPosicion(struct Eslabon *e) {
+    (*e).x = rand() % 361;   /* numero entre 0 y 360 */
+    (*e).y = rand() % 361;   /* (*e).x es lo mismo que e->x, solo que mas explicito */
+}
+
+/* aca simulamos que el eslabon se mueve hacia el origen
+   cada vuelta del while baja x e y en 1 hasta que los dos llegan a 0 */
+int autoHome(struct Eslabon *e) {
+    printf("  Eslabon %d: inicio -> X=%d, Y=%d\n", (*e).id, (*e).x, (*e).y);
+
+    while ((*e).x != 0 || (*e).y != 0) {
+        if ((*e).x > 0) (*e).x--;
+        if ((*e).y > 0) (*e).y--;
+
+        /* para no imprimir en cada paso, solo mostramos cada 60 unidades */
+        if ((*e).x % 60 == 0 && (*e).y % 60 == 0) {
+            printf("    [Eslabon %d] X=%d  Y=%d\n", (*e).id, (*e).x, (*e).y);
+            usleep(100000);   /* pausa de 0.1 segundos para que se vea el movimiento */
+        }
+    }
+
+    /* si llego a 0,0 retornamos 1 (verdadero), en C no hay bool asi que usamos int */
+    if ((*e).x == 0 && (*e).y == 0) {
+        return 1;
+    }
+    return 0;
+}
+
+int main() {
+    srand(time(NULL));   /* semilla distinta cada vez que se ejecuta el programa */
+
+    /* definimos los 4 eslabones como pide la tarea */
+    struct Eslabon id1, id2, id3, id4;
+
+    /* le damos un id unico a cada uno */
+    id1.id = 1;
+    id2.id = 2;
+    id3.id = 3;
+    id4.id = 4;
+
+    /* generamos posicion inicial aleatoria para cada eslabon */
+    generarPosicion(&id1);
+    generarPosicion(&id2);
+    generarPosicion(&id3);
+    generarPosicion(&id4);
+
+    printf("=== Inicio del proceso de Auto-Home ===\n\n");
+
+    /* llamamos al auto-home de cada uno, cuando retorna 1 imprimimos que termino */
+    if (autoHome(&id1)) printf("Eslabon 1 terminado\n\n");
+    if (autoHome(&id2)) printf("Eslabon 2 terminado\n\n");
+    if (autoHome(&id3)) printf("Eslabon 3 terminado\n\n");
+    if (autoHome(&id4)) printf("Eslabon 4 terminado\n\n");
+
+    printf("Todos los eslabones realizaron auto-home correctamente.\n");
+
+    return 0;
+}
